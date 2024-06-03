@@ -7,23 +7,22 @@ import {
   View,
   Button,
 } from "react-native";
+import OpenAI from "openai";
+import { ChatCompletionMessageParam } from "openai/resources";
 import { useState } from "react";
-import {
-  CameraView,
-  useCameraPermissions,
-  Camera,
-  CameraViewRef,
-} from "expo-camera";
-import { CameraType } from "react-native-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 // import { HelloWave } from "@/components/HelloWave";
 // import ParallaxScrollView from "@/components/ParallaxScrollView";
 // import { ThemedText } from "@/components/ThemedText";
 //
 
 export default function HomeScreen() {
-  const [facing, setFacing] = useState<CameraType>("back");
+  const [facing, setFacing] = useState("back" as any);
   const [permission, requestPermission] = useCameraPermissions();
   const [isCameraReady, setIsCameraReady] = useState(false);
+  let openai = new OpenAI({
+    apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
+  });
 
   let camera: CameraView | null = null;
 
@@ -46,7 +45,7 @@ export default function HomeScreen() {
 
   function toggleCameraFacing() {
     console.log("toggling");
-    setFacing((current) => (current === "back" ? "front" : "back"));
+    setFacing((current: any) => (current === "back" ? "front" : "back"));
   }
 
   function setCameraReady() {
@@ -54,16 +53,33 @@ export default function HomeScreen() {
   }
 
   async function takeTheDamnPicture() {
-    const photo = await camera?.takePictureAsync();
-    console.log(photo);
-  }
-
-  function TakePictureButton() {
-    return (
-      <TouchableOpacity style={styles.button} onPress={takeTheDamnPicture}>
-        <Text style={styles.text}>Take Picture</Text>
-      </TouchableOpacity>
-    );
+    if (!isCameraReady) {
+      console.log("Camera is not ready yet");
+      return;
+    }
+    const photo = await camera?.takePictureAsync({ base64: true });
+    console.log(photo?.uri);
+    if (openai && photo && photo.base64) {
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: "I have attached a notecard with my schedule for today on it. The date is in the top right corner. The schedule is left-aligned. Each line contains a start and end time, separated by a hyper, then a colon, then the task assigned to that time. Lines with mistakes are scribbled out. Please create the JSON object or objects that would be required to populate a Google Calendar, for the date provided, with this schedule.",
+              },
+              {
+                type: "image_url",
+                image_url: { url: "data:image/jpeg;base64," + photo.base64 },
+              },
+            ],
+          },
+        ],
+      });
+      console.log(response?.choices[0]?.message?.content);
+    }
   }
 
   return (
