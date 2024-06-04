@@ -62,13 +62,14 @@ export default function HomeScreen() {
     if (openai && photo && photo.base64) {
       const response = await openai.chat.completions.create({
         model: "gpt-4o",
+        max_tokens: 4096,
         messages: [
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "I have attached a notecard with my schedule for today on it. The date is in the top right corner. The schedule is left-aligned. Each line contains a start and end time, separated by a hyper, then a colon, then the task assigned to that time. Lines with mistakes are scribbled out. Please create the JSON object or objects that would be required to populate a Google Calendar, for the date provided, with this schedule.",
+                text: "I have attached a notecard with my schedule for today on it. The date is in the top right corner. The schedule is left-aligned. Each line contains a start and end time, separated by a hyper, then a colon, then the task assigned to that time. Lines with mistakes are scribbled out. Please create the JSON object or objects that would be required to populate a Google Calendar, for the date provided, with this schedule. Don't include anything other than the JSON object.",
               },
               {
                 type: "image_url",
