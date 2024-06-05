@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "WriteMyCalendar",
-    "slug": "WriteMyCalendar",
+    "slug": "writemycalendar",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -19,7 +19,11 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -34,11 +38,25 @@
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
           "recordAudioAndroid": true
         }
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps._some_id_here_"
+        }
       ]
     ],
-
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "c6503d4f-49eb-4271-bdb7-399a2b366d4f"
+      }
+    },
+    "owner": "bacheeze"
   }
 }
