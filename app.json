@@ -13,7 +13,9 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bacheeze.writemycalendar",
+      "googleServicesFile": "./client_270439132368-f7pvhr8e4hi7e5i9ef8oh2ji6rrofic5.apps.googleusercontent.com.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -39,12 +41,7 @@
           "recordAudioAndroid": true
         }
       ],
-      [
-        "@react-native-google-signin/google-signin",
-        {
-          "iosUrlScheme": "com.googleusercontent.apps._some_id_here_"
-        }
-      ]
+      ["@react-native-google-signin/google-signin"]
     ],
     "experiments": {
       "typedRoutes": true

@@ -11,6 +11,7 @@ import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources";
 import { useState } from "react";
 import { CameraView, useCameraPermissions } from "expo-camera";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 // import { HelloWave } from "@/components/HelloWave";
 // import ParallaxScrollView from "@/components/ParallaxScrollView";
 // import { ThemedText } from "@/components/ThemedText";
@@ -85,6 +86,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <GoogleSignInButton />
       <CameraView
         style={styles.camera}
         onCameraReady={setCameraReady}
