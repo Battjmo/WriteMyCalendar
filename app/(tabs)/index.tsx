@@ -86,7 +86,6 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <GoogleSignInButton />
       <CameraView
         style={styles.camera}
         onCameraReady={setCameraReady}
@@ -102,6 +101,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
       </CameraView>
+      <GoogleSignInButton />
     </View>
   );
 }

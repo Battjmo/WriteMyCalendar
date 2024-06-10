@@ -11,7 +11,7 @@ export default function () {
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJseXl0Y3pqYWh1cXNtbGZrZHBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTc0NTk1NDgsImV4cCI6MjAzMzAzNTU0OH0.N-wsVbyap6MZpiEs7ur4-7SqwKEh4Q4SM9ECiDfWdk8",
   );
   GoogleSignin.configure({
-    scopes: ["https://www.googleapis.com/auth/drive.readonly"],
+    scopes: ["https://www.googleapis.com/auth/calendar.events"],
     webClientId:
       "270439132368-f7pvhr8e4hi7e5i9ef8oh2ji6rrofic5.apps.googleusercontent.com",
   });
@@ -24,6 +24,7 @@ export default function () {
         try {
           await GoogleSignin.hasPlayServices();
           const userInfo = await GoogleSignin.signIn();
+          console.log("user info: ", userInfo);
           if (userInfo.idToken) {
             const { data, error } = await supabase.auth.signInWithIdToken({
               provider: "google",
