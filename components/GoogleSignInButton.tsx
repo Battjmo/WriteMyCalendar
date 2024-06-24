@@ -4,12 +4,13 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import { createClient } from "@supabase/supabase-js";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function () {
-  const supabase = createClient(
-    "https://blyytczjahuqsmlfkdpc.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJseXl0Y3pqYWh1cXNtbGZrZHBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTc0NTk1NDgsImV4cCI6MjAzMzAzNTU0OH0.N-wsVbyap6MZpiEs7ur4-7SqwKEh4Q4SM9ECiDfWdk8",
-  );
+export default function (tokenSetter: Dispatch<SetStateAction<string>>) {
+  // const supabase = createClient(
+  //   "https://blyytczjahuqsmlfkdpc.supabase.co",
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJseXl0Y3pqYWh1cXNtbGZrZHBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTc0NTk1NDgsImV4cCI6MjAzMzAzNTU0OH0.N-wsVbyap6MZpiEs7ur4-7SqwKEh4Q4SM9ECiDfWdk8",
+  // );
   GoogleSignin.configure({
     scopes: ["https://www.googleapis.com/auth/calendar.events"],
     webClientId:
@@ -26,11 +27,13 @@ export default function () {
           const userInfo = await GoogleSignin.signIn();
           console.log("user info: ", userInfo);
           if (userInfo.idToken) {
-            const { data, error } = await supabase.auth.signInWithIdToken({
-              provider: "google",
-              token: userInfo.idToken,
-            });
-            console.log(error, data);
+            // const { data, error } = await supabase.auth.signInWithIdToken({
+            //   provider: "google",
+            //   token: userInfo.idToken,
+            // });
+            // console.log(error, data);
+            await AsyncStorage.setItem("googleToken", userInfo.idToken);
+            tokenSetter(userInfo.idToken);
           } else {
             throw new Error("no ID token present!");
           }

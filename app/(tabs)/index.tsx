@@ -9,12 +9,13 @@ import {
 } from "react-native";
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 // import { HelloWave } from "@/components/HelloWave";
 // import ParallaxScrollView from "@/components/ParallaxScrollView";
 // import { ThemedText } from "@/components/ThemedText";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 //
 
 export default function HomeScreen() {
@@ -24,6 +25,29 @@ export default function HomeScreen() {
   let openai = new OpenAI({
     apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
   });
+  const [googleToken, setGoogleToken] = useState("");
+
+  useEffect(() => {
+    let ignore = false;
+
+    const fetchToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem("googleToken");
+        if (token !== null && !ignore && googleToken !== token) {
+          setGoogleToken(token);
+          console.log("got the token: ", token);
+        }
+      } catch (e) {
+        console.log("couldn't fetch token: ", e);
+      }
+    };
+
+    fetchToken();
+
+    return () => {
+      ignore = true;
+    };
+  }, [googleToken]);
 
   let camera: CameraView | null = null;
 
@@ -101,7 +125,8 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
       </CameraView>
-      <GoogleSignInButton />
+      {!googleToken && <GoogleSignInButton tokenSetter={setGoogleToken} />}
+      {/* {}<GoogleSignInButton tokenSetter={setGoogleToken} /> */}
     </View>
   );
 }
