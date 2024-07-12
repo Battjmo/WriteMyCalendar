@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
+    "@googleapis/calendar": "^9.7.5",
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-google-signin/google-signin": "^12.1.1",
     "@react-navigation/native": "^6.0.2",
@@ -31,7 +32,7 @@
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.4",
     "expo-web-browser": "~13.0.3",
-    "googleapis": "^137.1.0",
+    "googleapis": "^140.0.1",
     "openai": "^4.47.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
