@@ -7,35 +7,37 @@ import {
   View,
   Button,
 } from "react-native";
-import OpenAI from "openai";
-import { ChatCompletionMessageParam } from "openai/resources";
 import { useEffect, useState } from "react";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 // import { HelloWave } from "@/components/HelloWave";
 // import ParallaxScrollView from "@/components/ParallaxScrollView";
 // import { ThemedText } from "@/components/ThemedText";
+
+import { createClient } from "@supabase/supabase-js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-//
 
 export default function HomeScreen() {
   const [facing, setFacing] = useState("back" as any);
   const [permission, requestPermission] = useCameraPermissions();
   const [isCameraReady, setIsCameraReady] = useState(false);
-  let openai = new OpenAI({
-    apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
-  });
   const [googleToken, setGoogleToken] = useState("");
+  const [supabase, setSupabase] = useState(null);
 
   useEffect(() => {
     let ignore = false;
+    console.log("supabase anon key: ");
 
     const fetchToken = async () => {
       try {
         const token = await AsyncStorage.getItem("googleToken");
         if (token !== null && !ignore && googleToken !== token) {
           setGoogleToken(token);
-          console.log("got the token: ", token);
+          // const supabaseinit = createClient(
+          //   process.env.EXPO_PUBLIC_SUPABASE_URL,
+          //   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+          // );
+          // setSupabase(supabaseinit);
         }
       } catch (e) {
         console.log("couldn't fetch token: ", e);
@@ -47,7 +49,7 @@ export default function HomeScreen() {
     return () => {
       ignore = true;
     };
-  }, [googleToken]);
+  }, []);
 
   let camera: CameraView | null = null;
 
@@ -84,27 +86,49 @@ export default function HomeScreen() {
     }
     const photo = await camera?.takePictureAsync({ base64: true });
     console.log(photo?.uri);
-    if (openai && photo && photo.base64) {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        max_tokens: 4096,
-        messages: [
+
+    if (photo && photo.base64) {
+      const token = await AsyncStorage.getItem("googleToken");
+
+      const supabase = createClient(
+        process.env.EXPO_PUBLIC_SUPABASE_URL,
+        process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+      );
+      //   );
+      // }
+      if (supabase) {
+        const { data, error } = await supabase.functions.invoke(
+          "processImage",
           {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: "I have attached a notecard with my schedule for today on it. The date is in the top right corner. The schedule is left-aligned. Each line contains a start and end time, separated by a hyper, then a colon, then the task assigned to that time. Lines with mistakes are scribbled out. Please create the JSON object or objects that would be required to populate a Google Calendar, for the date provided, with this schedule. Don't include anything other than the JSON object.",
-              },
-              {
-                type: "image_url",
-                image_url: { url: "data:image/jpeg;base64," + photo.base64 },
-              },
-            ],
-          },
-        ],
-      });
-      console.log(response?.choices[0]?.message?.content);
+            body: {
+              photo: photo.base64,
+            },
+          }
+        );
+        console.log("data: ", data);
+        console.log("error: ", error);
+        const eventToSubmit = JSON.parse(data)[0];
+        console.log("🚀 ~ takeTheDamnPicture ~ eventToSubmit:", eventToSubmit);
+
+        // try {
+        //   const insertedEvent = await fetch(
+        //     "https://www.googleapis.com/calendar/v3/calendars/bacheeze@gmail.com/events",
+        //     {
+        //       method: "POST",
+        //       headers: {
+        //         type: "application/json; charset=UTF-8",
+        //         Authorization: `Bearer ${token}`,
+        //       },
+        //       body: JSON.stringify(eventData),
+        //     }
+        //   );
+        //   console.log("inserted event: ", insertedEvent);
+        // } catch (error) {
+        //   console.log("inserted event error: ", error);
+        // }
+      } else {
+        console.log("no supabase or token or eventData");
+      }
     }
   }
 
@@ -125,8 +149,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
       </CameraView>
-      {!googleToken && <GoogleSignInButton tokenSetter={setGoogleToken} />}
-      {/* {}<GoogleSignInButton tokenSetter={setGoogleToken} /> */}
+      <GoogleSignInButton tokenSetter={setGoogleToken} />
     </View>
   );
 }
