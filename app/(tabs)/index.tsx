@@ -122,14 +122,7 @@ export default function HomeScreen() {
         // console.log("inserted event: ", eventData.json());
         const parsedEvent = await eventData.json();
         console.log("parsedEvent: ", parsedEvent);
-        const eventToSubmit = parsedEvent[0] || null;
-      } catch (error) {
-        console.log("inserted event error: ", error);
-      }
-
-      // console.log("🚀 ~ takeTheDamnPicture ~ eventToSubmit:", eventToSubmit);
-
-      try {
+        const eventToInsert = JSON.stringify(parsedEvent[0]) || null;
         const insertedEvent = await fetch(
           "https://www.googleapis.com/calendar/v3/calendars/bacheeze@gmail.com/events",
           {
@@ -138,16 +131,25 @@ export default function HomeScreen() {
               type: "application/json; charset=UTF-8",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify(eventData),
+            body: eventToInsert,
           }
         );
-      //   console.log("inserted event: ", insertedEvent);
-      // } catch (error) {
-      //   console.log("inserted event error: ", error);
-      // }
-    } else {
-      console.log("no supabase or token or eventData");
+        console.log("inserted event: ", await insertedEvent.json());
+      } catch (error) {
+        console.log("inserted event error: ", error);
+      }
     }
+
+    // console.log("🚀 ~ takeTheDamnPicture ~ eventToSubmit:", eventToSubmit);
+
+    //   try {
+
+    //   // } catch (error) {
+    //   //   console.log("inserted event error: ", error);
+    //   // }
+    // } else {
+    //   console.log("no supabase or token or eventData");
+    // }
   }
 
   return (
