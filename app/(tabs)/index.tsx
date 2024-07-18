@@ -26,7 +26,6 @@ export default function HomeScreen() {
 
   useEffect(() => {
     let ignore = false;
-    console.log("supabase anon key: ");
 
     const fetchToken = async () => {
       try {
@@ -89,46 +88,65 @@ export default function HomeScreen() {
 
     if (photo && photo.base64) {
       const token = await AsyncStorage.getItem("googleToken");
+      const supabaseToken = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-      const supabase = createClient(
-        process.env.EXPO_PUBLIC_SUPABASE_URL,
-        process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
-      );
+      // const supabase = createClient(
+      //   process.env.EXPO_PUBLIC_SUPABASE_URL,
+      //   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+      // );
+      // //   );
+      // // }
+      // if (supabase) {
+      //   const { data, error } = await supabase.functions.invoke(
+      //     "processImage",
+      //     {
+      //       body: {
+      //         photo: photo.base64,
+      //       },
+      //     }
       //   );
-      // }
-      if (supabase) {
-        const { data, error } = await supabase.functions.invoke(
-          "processImage",
+
+      // call edge function with fetch since it doesn't work from an iphone over LAN
+      try {
+        const eventData = await fetch(
+          "https://blyytczjahuqsmlfkdpc.supabase.co/functions/v1/processImage",
           {
-            body: {
-              photo: photo.base64,
+            method: "POST",
+            headers: {
+              type: "application/json; charset=UTF-8",
+              Authorization: `Bearer ${supabaseToken}`,
             },
+            body: JSON.stringify({ photo: photo.base64 }),
           }
         );
-        console.log("data: ", data);
-        console.log("error: ", error);
-        const eventToSubmit = JSON.parse(data)[0];
-        console.log("🚀 ~ takeTheDamnPicture ~ eventToSubmit:", eventToSubmit);
-
-        // try {
-        //   const insertedEvent = await fetch(
-        //     "https://www.googleapis.com/calendar/v3/calendars/bacheeze@gmail.com/events",
-        //     {
-        //       method: "POST",
-        //       headers: {
-        //         type: "application/json; charset=UTF-8",
-        //         Authorization: `Bearer ${token}`,
-        //       },
-        //       body: JSON.stringify(eventData),
-        //     }
-        //   );
-        //   console.log("inserted event: ", insertedEvent);
-        // } catch (error) {
-        //   console.log("inserted event error: ", error);
-        // }
-      } else {
-        console.log("no supabase or token or eventData");
+        // console.log("inserted event: ", eventData.json());
+        const parsedEvent = await eventData.json();
+        console.log("parsedEvent: ", parsedEvent);
+        const eventToSubmit = parsedEvent[0] || null;
+      } catch (error) {
+        console.log("inserted event error: ", error);
       }
+
+      // console.log("🚀 ~ takeTheDamnPicture ~ eventToSubmit:", eventToSubmit);
+
+      try {
+        const insertedEvent = await fetch(
+          "https://www.googleapis.com/calendar/v3/calendars/bacheeze@gmail.com/events",
+          {
+            method: "POST",
+            headers: {
+              type: "application/json; charset=UTF-8",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(eventData),
+          }
+        );
+      //   console.log("inserted event: ", insertedEvent);
+      // } catch (error) {
+      //   console.log("inserted event error: ", error);
+      // }
+    } else {
+      console.log("no supabase or token or eventData");
     }
   }
 
