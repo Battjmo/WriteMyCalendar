@@ -1,25 +1,33 @@
 {
   "expo": {
     "name": "WriteMyCalendar",
-    "slug": "WriteMyCalendar",
+    "slug": "writemycalendar",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
+    "deploymentTarget": "17.5.1",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bacheeze.writemycalendar",
+      "googleServicesFile": "./client_270439132368-f7pvhr8e4hi7e5i9ef8oh2ji6rrofic5.apps.googleusercontent.com.plist"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.bacheeze.writemycalendar"
     },
     "web": {
       "bundler": "metro",
@@ -34,11 +42,20 @@
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
           "recordAudioAndroid": true
         }
-      ]
+      ],
+      ["@react-native-google-signin/google-signin"]
     ],
-
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "c6503d4f-49eb-4271-bdb7-399a2b366d4f"
+      }
+    },
+    "owner": "bacheeze"
   }
 }

@@ -7,22 +7,48 @@ import {
   View,
   Button,
 } from "react-native";
-import OpenAI from "openai";
-import { ChatCompletionMessageParam } from "openai/resources";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CameraView, useCameraPermissions } from "expo-camera";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 // import { HelloWave } from "@/components/HelloWave";
 // import ParallaxScrollView from "@/components/ParallaxScrollView";
 // import { ThemedText } from "@/components/ThemedText";
-//
+
+import { createClient } from "@supabase/supabase-js";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HomeScreen() {
   const [facing, setFacing] = useState("back" as any);
   const [permission, requestPermission] = useCameraPermissions();
   const [isCameraReady, setIsCameraReady] = useState(false);
-  let openai = new OpenAI({
-    apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
-  });
+  const [googleToken, setGoogleToken] = useState("");
+  const [supabase, setSupabase] = useState(null);
+
+  useEffect(() => {
+    let ignore = false;
+
+    const fetchToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem("googleToken");
+        if (token !== null && !ignore && googleToken !== token) {
+          setGoogleToken(token);
+          // const supabaseinit = createClient(
+          //   process.env.EXPO_PUBLIC_SUPABASE_URL,
+          //   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+          // );
+          // setSupabase(supabaseinit);
+        }
+      } catch (e) {
+        console.log("couldn't fetch token: ", e);
+      }
+    };
+
+    fetchToken();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   let camera: CameraView | null = null;
 
@@ -59,27 +85,71 @@ export default function HomeScreen() {
     }
     const photo = await camera?.takePictureAsync({ base64: true });
     console.log(photo?.uri);
-    if (openai && photo && photo.base64) {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
+
+    if (photo && photo.base64) {
+      const token = await AsyncStorage.getItem("googleToken");
+      const supabaseToken = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+      // const supabase = createClient(
+      //   process.env.EXPO_PUBLIC_SUPABASE_URL,
+      //   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+      // );
+      // //   );
+      // // }
+      // if (supabase) {
+      //   const { data, error } = await supabase.functions.invoke(
+      //     "processImage",
+      //     {
+      //       body: {
+      //         photo: photo.base64,
+      //       },
+      //     }
+      //   );
+
+      // call edge function with fetch since it doesn't work from an iphone over LAN
+      try {
+        const eventData = await fetch(
+          "https://blyytczjahuqsmlfkdpc.supabase.co/functions/v1/processImage",
           {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: "I have attached a notecard with my schedule for today on it. The date is in the top right corner. The schedule is left-aligned. Each line contains a start and end time, separated by a hyper, then a colon, then the task assigned to that time. Lines with mistakes are scribbled out. Please create the JSON object or objects that would be required to populate a Google Calendar, for the date provided, with this schedule.",
-              },
-              {
-                type: "image_url",
-                image_url: { url: "data:image/jpeg;base64," + photo.base64 },
-              },
-            ],
-          },
-        ],
-      });
-      console.log(response?.choices[0]?.message?.content);
+            method: "POST",
+            headers: {
+              type: "application/json; charset=UTF-8",
+              Authorization: `Bearer ${supabaseToken}`,
+            },
+            body: JSON.stringify({ photo: photo.base64 }),
+          }
+        );
+        // console.log("inserted event: ", eventData.json());
+        const parsedEvent = await eventData.json();
+        console.log("parsedEvent: ", parsedEvent);
+        const eventToInsert = JSON.stringify(parsedEvent[0]) || null;
+        const insertedEvent = await fetch(
+          "https://www.googleapis.com/calendar/v3/calendars/bacheeze@gmail.com/events",
+          {
+            method: "POST",
+            headers: {
+              type: "application/json; charset=UTF-8",
+              Authorization: `Bearer ${token}`,
+            },
+            body: eventToInsert,
+          }
+        );
+        console.log("inserted event: ", await insertedEvent.json());
+      } catch (error) {
+        console.log("inserted event error: ", error);
+      }
     }
+
+    // console.log("🚀 ~ takeTheDamnPicture ~ eventToSubmit:", eventToSubmit);
+
+    //   try {
+
+    //   // } catch (error) {
+    //   //   console.log("inserted event error: ", error);
+    //   // }
+    // } else {
+    //   console.log("no supabase or token or eventData");
+    // }
   }
 
   return (
@@ -99,6 +169,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
       </CameraView>
+      <GoogleSignInButton tokenSetter={setGoogleToken} />
     </View>
   );
 }
