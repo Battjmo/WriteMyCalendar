@@ -3,7 +3,6 @@ import {
   GoogleSigninButton,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
-import { createClient } from "@supabase/supabase-js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function () {
@@ -18,8 +17,9 @@ export default function () {
       onPress={async () => {
         try {
           await GoogleSignin.hasPlayServices();
-          await GoogleSignin.signIn();
+          const singin = await GoogleSignin.signIn();
           const tokens = await GoogleSignin.getTokens();
+          await AsyncStorage.setItem("userEmail", singin?.user?.email);
           await AsyncStorage.setItem("googleToken", tokens.accessToken);
         } catch (error: any) {
           if (error.code === statusCodes.SIGN_IN_CANCELLED) {
