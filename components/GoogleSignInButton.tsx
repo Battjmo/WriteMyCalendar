@@ -6,7 +6,7 @@ import {
 import { createClient } from "@supabase/supabase-js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function (tokenSetter: Dispatch<SetStateAction<string>>) {
+export default function () {
   GoogleSignin.configure({
     webClientId: process.env.GOOGLE_IOS_CLIENT_ID,
   });
