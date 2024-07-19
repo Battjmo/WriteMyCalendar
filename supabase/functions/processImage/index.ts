@@ -10,7 +10,6 @@ console.log("Hello from Functions!");
 
 Deno.serve(async (req) => {
   const { photo } = await req.json();
-  console.log("🚀 ~ Deno.serve ~ photo:", photo);
 
   console.log("hi!");
   const openai = new OpenAI({

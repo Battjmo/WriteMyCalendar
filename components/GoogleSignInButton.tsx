@@ -17,8 +17,12 @@ export default function () {
       onPress={async () => {
         try {
           await GoogleSignin.hasPlayServices();
+          const user = await GoogleSignin.addScopes({
+            scopes: ["https://www.googleapis.com/auth/calendar.events"],
+          });
           const singin = await GoogleSignin.signIn();
           const tokens = await GoogleSignin.getTokens();
+          console.log("🚀 ~ onPress={ ~ tokens:", tokens);
           await AsyncStorage.setItem("userEmail", singin?.user?.email);
           await AsyncStorage.setItem("googleToken", tokens.accessToken);
         } catch (error: any) {
