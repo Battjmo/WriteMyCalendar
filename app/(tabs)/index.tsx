@@ -1,6 +1,10 @@
 import { StyleSheet, Text, TouchableOpacity, View, Button } from "react-native";
 import { useEffect, useState } from "react";
-import { CameraView, useCameraPermissions } from "expo-camera";
+import {
+  CameraCapturedPicture,
+  CameraView,
+  useCameraPermissions,
+} from "expo-camera";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -12,7 +16,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     let ignore = false;
-
+    // get the google token from async storage
     const fetchToken = async () => {
       try {
         const token = await AsyncStorage.getItem("googleToken");
@@ -23,13 +27,55 @@ export default function HomeScreen() {
         console.log("couldn't fetch token: ", e);
       }
     };
-
     fetchToken();
-
     return () => {
       ignore = true;
     };
   }, []);
+
+  // send the image to Supabase and thence OpenAI
+  const processImage = async (photo: CameraCapturedPicture) => {
+    const supabaseToken = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+    // call edge function with fetch since it doesn't work from an iphone over LAN
+    try {
+      console.log("hello?");
+      const eventData = await fetch(
+        "https://blyytczjahuqsmlfkdpc.supabase.co/functions/v1/processImage",
+        {
+          method: "POST",
+          headers: {
+            type: "application/json; charset=UTF-8",
+            Authorization: `Bearer ${supabaseToken}`,
+          },
+          body: JSON.stringify({ photo: photo.base64 }),
+        }
+      );
+      console.log("eventData: ", eventData);
+      return await eventData.json();
+    } catch (error) {
+      console.log("inserted event error: ", error);
+    }
+  };
+
+  const addEventsToCalendar = async (parsedEvent: any) => {
+    const token = await AsyncStorage.getItem("googleToken");
+    for (const event of parsedEvent) {
+      const eventToInsert = JSON.stringify(event);
+      const insertedEvent = await fetch(
+        "https://www.googleapis.com/calendar/v3/calendars/bacheeze@gmail.com/events",
+        {
+          method: "POST",
+          headers: {
+            type: "application/json; charset=UTF-8",
+            Authorization: `Bearer ${token}`,
+          },
+          body: eventToInsert,
+        }
+      );
+      console.log("inserted event: ", await insertedEvent.json());
+    }
+  };
 
   let camera: CameraView | null = null;
 
@@ -69,45 +115,13 @@ export default function HomeScreen() {
     console.log(photo?.uri);
 
     if (photo && photo.base64) {
-      const supabaseToken = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
-
-      // call edge function with fetch since it doesn't work from an iphone over LAN
-      try {
-        const eventData = await fetch(
-          "https://blyytczjahuqsmlfkdpc.supabase.co/functions/v1/processImage",
-          {
-            method: "POST",
-            headers: {
-              type: "application/json; charset=UTF-8",
-              Authorization: `Bearer ${supabaseToken}`,
-            },
-            body: JSON.stringify({ photo: photo.base64 }),
-          }
-        );
-        parsedEvent = await eventData.json();
-        console.log("parsedEvent: ", parsedEvent);
-      } catch (error) {
-        console.log("inserted event error: ", error);
-      }
+      console.log("first hi");
+      parsedEvent = await processImage(photo);
+      console.log("second hi");
     }
 
     if (parsedEvent) {
-      const token = await AsyncStorage.getItem("googleToken");
-      for (const event of parsedEvent) {
-        const eventToInsert = JSON.stringify(event);
-        const insertedEvent = await fetch(
-          "https://www.googleapis.com/calendar/v3/calendars/bacheeze@gmail.com/events",
-          {
-            method: "POST",
-            headers: {
-              type: "application/json; charset=UTF-8",
-              Authorization: `Bearer ${token}`,
-            },
-            body: eventToInsert,
-          }
-        );
-        console.log("inserted event: ", await insertedEvent.json());
-      }
+      await addEventsToCalendar(parsedEvent);
     }
   }
 
@@ -128,7 +142,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
       </CameraView>
-      <GoogleSignInButton tokenSetter={setGoogleToken} />
+      <GoogleSignInButton />
     </View>
   );
 }
