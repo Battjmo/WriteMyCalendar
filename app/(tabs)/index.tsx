@@ -83,11 +83,11 @@ export default function HomeScreen() {
       console.log("Camera is not ready yet");
       return;
     }
+    let parsedEvent;
     const photo = await camera?.takePictureAsync({ base64: true });
     console.log(photo?.uri);
 
     if (photo && photo.base64) {
-      const token = await AsyncStorage.getItem("googleToken");
       const supabaseToken = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
       // const supabase = createClient(
@@ -120,9 +120,18 @@ export default function HomeScreen() {
           }
         );
         // console.log("inserted event: ", eventData.json());
-        const parsedEvent = await eventData.json();
+        parsedEvent = await eventData.json();
         console.log("parsedEvent: ", parsedEvent);
-        const eventToInsert = JSON.stringify(parsedEvent[0]) || null;
+      } catch (error) {
+        console.log("inserted event error: ", error);
+      }
+    }
+
+    if (parsedEvent) {
+      const token = await AsyncStorage.getItem("googleToken");
+      // const eventToInsert = JSON.stringify(parsedEvent[0]) || null;
+      for (const event of parsedEvent) {
+        const eventToInsert = JSON.stringify(event);
         const insertedEvent = await fetch(
           "https://www.googleapis.com/calendar/v3/calendars/bacheeze@gmail.com/events",
           {
@@ -135,21 +144,19 @@ export default function HomeScreen() {
           }
         );
         console.log("inserted event: ", await insertedEvent.json());
-      } catch (error) {
-        console.log("inserted event error: ", error);
       }
+
+      // console.log("🚀 ~ takeTheDamnPicture ~ eventToSubmit:", eventToSubmit);
+
+      //   try {
+
+      //   // } catch (error) {
+      //   //   console.log("inserted event error: ", error);
+      //   // }
+      // } else {
+      //   console.log("no supabase or token or eventData");
+      // }
     }
-
-    // console.log("🚀 ~ takeTheDamnPicture ~ eventToSubmit:", eventToSubmit);
-
-    //   try {
-
-    //   // } catch (error) {
-    //   //   console.log("inserted event error: ", error);
-    //   // }
-    // } else {
-    //   console.log("no supabase or token or eventData");
-    // }
   }
 
   return (
