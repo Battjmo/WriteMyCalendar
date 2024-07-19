@@ -39,7 +39,6 @@ export default function HomeScreen() {
 
     // call edge function with fetch since it doesn't work from an iphone over LAN
     try {
-      console.log("hello?");
       const eventData = await fetch(
         "https://blyytczjahuqsmlfkdpc.supabase.co/functions/v1/processImage",
         {
@@ -60,10 +59,15 @@ export default function HomeScreen() {
 
   const addEventsToCalendar = async (parsedEvent: any) => {
     const token = await AsyncStorage.getItem("googleToken");
+    const email = await AsyncStorage.getItem("userEmail");
+    if (!token || !email) {
+      console.log("token or email not found");
+      return;
+    }
     for (const event of parsedEvent) {
       const eventToInsert = JSON.stringify(event);
       const insertedEvent = await fetch(
-        "https://www.googleapis.com/calendar/v3/calendars/bacheeze@gmail.com/events",
+        `https://www.googleapis.com/calendar/v3/calendars/${email}/events`,
         {
           method: "POST",
           headers: {
@@ -112,12 +116,9 @@ export default function HomeScreen() {
     }
     let parsedEvent;
     const photo = await camera?.takePictureAsync({ base64: true });
-    console.log(photo?.uri);
 
     if (photo && photo.base64) {
-      console.log("first hi");
       parsedEvent = await processImage(photo);
-      console.log("second hi");
     }
 
     if (parsedEvent) {
