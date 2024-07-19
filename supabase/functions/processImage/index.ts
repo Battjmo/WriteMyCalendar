@@ -40,11 +40,9 @@ Deno.serve(async (req) => {
           },
         ],
       });
-      console.log("🚀 ~ Deno.serve ~ response:", response);
       openAIResponse = await JSON.parse(
         response?.choices[0]?.message?.content?.slice(8, -3) || ""
       );
-      console.log("🚀 ~ Deno.serve ~ openAIResponse:", response);
     } catch (error) {
       console.error("openai error: ", error);
       return new Response(JSON.stringify({ error: error.message }), {
