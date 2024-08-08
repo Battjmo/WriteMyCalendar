@@ -8,11 +8,11 @@ For reasons I've already forgotten, I started writing a schedule by hand every m
 
 Basically we turn this:
 
-![schedule example](readmestuff/IMG_3335.JPG)
+![schedule example](https://www.nickbattjes.com/images/IMG_3335.JPG)
 
 into this:
 
-![calendar example](readmestuff/calendar.png)
+![calendar example](https://www.nickbattjes.com/images/calendar.png)
 
 ## How's it work?
 
