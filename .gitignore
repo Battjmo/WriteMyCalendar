@@ -13,7 +13,7 @@ web-build/
 .vscode
 android/
 ios/
-googlereference/
+reference/
 
 # macOS
 .DS_Store
