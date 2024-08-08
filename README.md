@@ -1,50 +1,26 @@
-# Welcome to your Expo app 👋
+# Write My Calendar
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## What are we doing here?
 
-## Get started
+I'm making this app to solve a personal problem that hopefully applies to at least a few other people: getting their handwritten... everything into a place where they can make use of it.
 
-1. Install dependencies
+For reasons I've already forgotten, I started writing a schedule by hand every morning in early 2024. It's great for organizing my thoughts and planning my day, but manually translating it into my Google Calendar so I can get reminders and have it with me thoughtout the day was a huge pain in the ass. Since multimodal LLM's are a readily accessible thing now, I decided to make WriteMyCalendar (working title).
 
-   ```bash
-   npm install
-   ```
+Basically we turn this:
 
-2. Start the app
+![schedule example](readmestuff/IMG_3335.JPG)
 
-   ```bash
-    npx expo start
-   ```
+into this:
 
-In the output, you'll find options to open the app in a
+![calendar example](readmestuff/calendar.png)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## How's it work?
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+1. Open the app.
+2. Sign into your Google account (more calendars forthcoming).
+3. Take a picture of your notecard (must be in the format pictured, more configurations forthcoming).
+4. Wait a few seconds (usually less then 10 presently).
 
-## Get a fresh project
+## What's next?
 
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Turning more things into more other things!
