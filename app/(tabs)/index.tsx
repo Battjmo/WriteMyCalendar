@@ -131,20 +131,6 @@ export default function HomeScreen() {
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={takeTheDamnPicture}>
             <Text style={styles.text}>Take Photo</Text>
-            <div class="lds-spinner">
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-            </div>
           </TouchableOpacity>
         </View>
       </CameraView>
