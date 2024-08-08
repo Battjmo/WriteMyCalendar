@@ -9,7 +9,6 @@ import GoogleSignInButton from "@/components/GoogleSignInButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HomeScreen() {
-  const [facing, setFacing] = useState("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [googleToken, setGoogleToken] = useState("");
@@ -100,11 +99,6 @@ export default function HomeScreen() {
     );
   }
 
-  function toggleCameraFacing() {
-    console.log("toggling");
-    setFacing((current: any) => (current === "back" ? "front" : "back"));
-  }
-
   function setCameraReady() {
     setIsCameraReady(true);
   }
@@ -132,14 +126,25 @@ export default function HomeScreen() {
         style={styles.camera}
         onCameraReady={setCameraReady}
         ref={(ref) => (camera = ref)}
-        facing={facing}
+        facing={"back"}
       >
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={takeTheDamnPicture}>
             <Text style={styles.text}>Take Photo</Text>
+            <div class="lds-spinner">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
           </TouchableOpacity>
         </View>
       </CameraView>
