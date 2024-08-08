@@ -43,7 +43,9 @@
           "recordAudioAndroid": true
         }
       ],
-      ["@react-native-google-signin/google-signin"]
+      [
+        "@react-native-google-signin/google-signin"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -56,6 +58,12 @@
         "projectId": "c6503d4f-49eb-4271-bdb7-399a2b366d4f"
       }
     },
-    "owner": "bacheeze"
+    "owner": "bacheeze",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c6503d4f-49eb-4271-bdb7-399a2b366d4f"
+    }
   }
 }

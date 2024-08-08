@@ -1,0 +1,21 @@
+{
+  "idToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjBlMzQ1ZmQ3ZTRhOTcyNzFkZmZhOTkxZjVhODkzY2QxNmI4ZTA4MjciLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIyNzA0MzkxMzIzNjgtZjdwdmhyOGU0aGk3ZTVpOWVmOG9oMmppNnJyb2ZpYzUuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIyNzA0MzkxMzIzNjgtZjdwdmhyOGU0aGk3ZTVpOWVmOG9oMmppNnJyb2ZpYzUuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTUyMDgwMDk1ODE1MTEzNzc2NDEiLCJlbWFpbCI6ImJhY2hlZXplQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoidjdrOGhoV1FXVlc3ZDJDLTl4WmxiZyIsIm5vbmNlIjoiSmlfSDdYeFZpSDB2eWxCSUdwWnVjbE9ubk1ncnRna2pvV1pFYzJZSWJFayIsIm5hbWUiOiJOaWNrIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pTMTFmUjY2UUJkSWJLQ2FEczVhYzk0ODBKUEtQd2xlTG0yMkxaa1B0blpRQTFtNG89czk2LWMiLCJnaXZlbl9uYW1lIjoiTmljayIsImlhdCI6MTcyMTQyMDg3MCwiZXhwIjoxNzIxNDI0NDcwfQ.HumOeNnqBiokbuqkdb2CW5xumITVKSKBjerikTH3QDJhukXirugZHFS5VWNMBubxJyVYVptW7cFELxgksqvHSjUuhGZtOS_6iuCxrpWRGgshkM0nUJS_cPPJAhl1MouTucHx8W7K0bXAKL9cg2_YvZDkrFslThkHiMimS3jUH96lgjWjI7n3b0ly5EJsh__0mDmL1HLjy_VO99ENirScAd5FtSHr3GCVfTyvhpqX-afGkmQAImiZC2uYNR07liFzkvvXKMropVeRz1ZHd46mSETHs-V7dpK9GXOpj7mZrLSCMK8VaMZ8_nlR6Kw_Nj_HHXU8gOmgONe_vbC0aQOxpg",
+  "scopes": [
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "https://www.googleapis.com/auth/calendar",
+    "openid",
+    "https://www.googleapis.com/auth/drive.readonly",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/calendar.readonly",
+    "https://www.googleapis.com/auth/calendar.events"
+  ],
+  "serverAuthCode": null,
+  "user": {
+    "email": "bacheeze@gmail.com",
+    "familyName": null,
+    "givenName": "Nick",
+    "id": "115208009581511377641",
+    "name": "Nick",
+    "photo": "https://lh3.googleusercontent.com/a/ACg8ocJS11fR66QBdIbKCaDs5ac9480JPKPwleLm22LZkPtnZQA1m4o=s120"
+  }
+}
