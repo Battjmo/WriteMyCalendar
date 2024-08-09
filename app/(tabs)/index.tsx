@@ -7,11 +7,14 @@ import {
 } from "expo-camera";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useModeContext } from "@/components/context/modeContext";
 
 export default function HomeScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [googleToken, setGoogleToken] = useState("");
+  //@ts-ignore
+  const { state } = useModeContext();
 
   useEffect(() => {
     let ignore = false;
@@ -131,6 +134,7 @@ export default function HomeScreen() {
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={takeTheDamnPicture}>
             <Text style={styles.text}>Take Photo</Text>
+            <Text style={styles.text}>{state.mode}</Text>
           </TouchableOpacity>
         </View>
       </CameraView>
