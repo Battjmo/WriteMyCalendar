@@ -49,7 +49,7 @@ export default function HomeScreen() {
             type: "application/json; charset=UTF-8",
             Authorization: `Bearer ${supabaseToken}`,
           },
-          body: JSON.stringify({ photo: photo.base64 }),
+          body: JSON.stringify({ photo: photo.base64, mode: state.mode }),
         }
       );
       console.log("eventData: ", eventData);
@@ -81,6 +81,30 @@ export default function HomeScreen() {
       );
       console.log("inserted event: ", await insertedEvent.json());
     }
+  };
+
+  const addTextToGoogleDocs = async (parsedEvent: any) => {
+    console.log("adding note");
+    const token = await AsyncStorage.getItem("googleToken");
+    const email = await AsyncStorage.getItem("userEmail");
+    if (!token || !email) {
+      console.log("token or email not found");
+      return;
+    }
+    const noteToInsert = JSON.stringify(parsedEvent);
+    console.log("🚀 ~ addTextToGoogleDocs ~ noteToInsert:", noteToInsert);
+    const insertedEvent = await fetch(
+      `https://www.googleapis.com/upload/drive/v3/files?uploadType=media`,
+      {
+        method: "POST",
+        headers: {
+          type: "application/json; charset=UTF-8",
+          Authorization: `Bearer ${token}`,
+        },
+        body: noteToInsert,
+      }
+    );
+    console.log("inserted event: ", await insertedEvent.json());
   };
 
   let camera: CameraView | null = null;
@@ -118,8 +142,22 @@ export default function HomeScreen() {
       parsedEvent = await processImage(photo);
     }
 
+    console.log("parsedEvent: ", parsedEvent);
+    let result;
+
     if (parsedEvent) {
-      await addEventsToCalendar(parsedEvent);
+      switch (state.mode) {
+        case "calendar":
+          result = await addEventsToCalendar(parsedEvent);
+          console.log("🚀 ~ takeTheDamnPicture ~ result:", result);
+          break;
+        case "text":
+          result = await addTextToGoogleDocs(parsedEvent);
+          console.log("🚀 ~ takeTheDamnPicture ~ result:", result);
+          break;
+        default:
+          break;
+      }
     }
   }
 

@@ -10,17 +10,18 @@ import OpenAI from "npm:openai";
 const prompts: { [key: string]: string } = {
   calendar:
     "I have attached a notecard with my schedule for today on it. The date is in the top right corner. The schedule is left-aligned. Each line contains a start and end time, separated by a hyper, then a colon, then the task assigned to that time. Lines with mistakes are scribbled out. Please create the JSON object or objects that would be required to populate a Google Calendar, for the date provided, with this schedule. Don't include anything other than the JSON object. Each event should include a summary, start time object with a datetime and the Los Angeles timezone, and an end time object with same.",
-  notes:
-    "I have attached a photo of a piece of paper with some handwritten notes on it. Please create the JSON Object or objects that would be required to create a Google Doc and populate it with this information using the Google Drive API. Don't include anything other than the JSON object. Each note should include a title and a body.",
+  text: "I have attached a photo of a piece of paper with some handwritten notes on it. Please create the JSON Object or objects that would be required to create a Google Doc and populate it with this information using the Google Drive API. Don't include anything other than the JSON object. Each note should include a title and a body.",
 };
 
 Deno.serve(async (req) => {
   // const {body } = await req.json();
   // const photo = body?.photo as string
-  // const prompt = prompts[body?.mode as string] || prompts["calendar"])
+
   // console.log("🚀 ~ Deno.serve ~ prompt:", prompt)
 
-  const { photo } = await req.json();
+  const { photo, mode } = await req.json();
+  const prompt = prompts[mode as string] || prompts["calendar"];
+  console.log("🚀 ~ Deno.serve ~ mode:", mode);
   const openai = new OpenAI({
     apiKey: Deno.env.get("OPENAI_API_KEY"),
   });
@@ -48,6 +49,7 @@ Deno.serve(async (req) => {
           },
         ],
       });
+      console.log("🚀 ~ Deno.serve ~ response:", response);
       openAIResponse = await JSON.parse(
         response?.choices[0]?.message?.content?.slice(8, -3) || ""
       );
