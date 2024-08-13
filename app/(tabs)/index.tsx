@@ -91,20 +91,20 @@ export default function HomeScreen() {
       console.log("token or email not found");
       return;
     }
-    const noteToInsert = JSON.stringify(parsedEvent);
-    console.log("🚀 ~ addTextToGoogleDocs ~ noteToInsert:", noteToInsert);
+    // const noteToInsert = JSON.stringify(parsedEvent);
+    console.log("🚀 ~ addTextToGoogleDocs ~ noteToInsert:", parsedEvent.body);
     const insertedEvent = await fetch(
       `https://www.googleapis.com/upload/drive/v3/files?uploadType=media`,
       {
         method: "POST",
         headers: {
-          type: "application/json; charset=UTF-8",
+          type: "text/plain",
           Authorization: `Bearer ${token}`,
         },
-        body: noteToInsert,
+        body: JSON.stringify(parsedEvent.body),
       }
     );
-    console.log("inserted event: ", await insertedEvent.json());
+    console.log("inserted document: ", await insertedEvent.json());
   };
 
   let camera: CameraView | null = null;
