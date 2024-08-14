@@ -10,7 +10,7 @@ import OpenAI from "npm:openai";
 const prompts: { [key: string]: string } = {
   calendar:
     "I have attached a notecard with my schedule for today on it. The date is in the top right corner. The schedule is left-aligned. Each line contains a start and end time, separated by a hyper, then a colon, then the task assigned to that time. Lines with mistakes are scribbled out. Please create the JSON object or objects that would be required to populate a Google Calendar, for the date provided, with this schedule. Don't include anything other than the JSON object. Each event should include a summary, start time object with a datetime and the Los Angeles timezone, and an end time object with same.",
-  text: "I have attached a photo of a piece of paper with some handwritten notes on it. Please create the JSON Object or objects that would be required to create a text document in Google Drive and populate it with this information using the Google Drive API. Don't include anything other than the JSON object.",
+  text: "I have attached a photo of a piece of paper with some handwritten notes on it. Please create the JSON Object or objects that would be required to create a text document in Google Drive and populate it with this information using the Google Drive API. The first line of the note should be used as the name of the document. Don't include anything other than the JSON object.",
 };
 
 Deno.serve(async (req) => {
@@ -50,9 +50,10 @@ Deno.serve(async (req) => {
         ],
       });
       console.log("🚀 ~ Deno.serve ~ response:", response);
-      openAIResponse = await JSON.parse(
-        response?.choices[0]?.message?.content?.slice(8, -3) || ""
-      );
+      openAIResponse =
+        (await JSON.parse(
+          response?.choices[0]?.message?.content?.slice(8, -3)
+        )) || "";
       console.log("openai response: ", openAIResponse);
     } catch (error) {
       console.error("openai error: ", error);

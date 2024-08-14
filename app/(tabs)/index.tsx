@@ -84,27 +84,43 @@ export default function HomeScreen() {
   };
 
   const addTextToGoogleDocs = async (parsedEvent: any) => {
-    console.log("adding note");
     const token = await AsyncStorage.getItem("googleToken");
     const email = await AsyncStorage.getItem("userEmail");
     if (!token || !email) {
       console.log("token or email not found");
       return;
     }
-    // const noteToInsert = JSON.stringify(parsedEvent);
-    console.log("🚀 ~ addTextToGoogleDocs ~ noteToInsert:", parsedEvent.body);
-    const insertedEvent = await fetch(
-      `https://www.googleapis.com/upload/drive/v3/files?uploadType=media`,
+
+    const doc = parsedEvent.body || parsedEvent;
+
+    const title = doc.name || doc.title || "Untitled";
+    console.log("🚀 ~ addTextToGoogleDocs ~ title:", title);
+    const body = doc.content || "No content";
+    console.log("🚀 ~ addTextToGoogleDocs ~ body:", body);
+
+    const metadata = {
+      name: `${title}.txt`,
+      mimeType: "text/plain",
+    };
+
+    const fileData = new Blob([body], { type: "text/plain" });
+
+    const formData = new FormData();
+    formData.append(
+      "metadata",
+      new Blob([JSON.stringify(metadata)], { type: "application/json" })
+    );
+    formData.append("file", fileData);
+    const response = await fetch(
+      "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
       {
         method: "POST",
-        headers: {
-          type: "text/plain",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(parsedEvent.body),
+        headers: new Headers({ Authorization: `Bearer ${token}` }),
+        body: formData,
       }
     );
-    console.log("inserted document: ", await insertedEvent.json());
+    console.log("inserted document: ", await response.json());
+    return response;
   };
 
   let camera: CameraView | null = null;

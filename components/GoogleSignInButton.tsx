@@ -21,7 +21,6 @@ export default function () {
       console.log("🚀 ~ checkGoogleStatus ~ user:", user);
       if (user.idToken) {
         const tokens = await GoogleSignin.getTokens();
-        console.log("🚀 ~ onPress={ ~ tokens:", tokens);
         await AsyncStorage.setItem("userEmail", user?.user?.email);
         await AsyncStorage.setItem("googleToken", tokens.accessToken);
         setSignedIn(true);
