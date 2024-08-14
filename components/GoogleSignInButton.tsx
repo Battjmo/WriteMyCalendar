@@ -7,8 +7,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 
 export default function () {
-  const [signedIn, setSignedIn] = useState(false);
-
   useEffect(() => {
     const checkGoogleStatus = async () => {
       GoogleSignin.configure({
@@ -18,12 +16,10 @@ export default function () {
         ],
       });
       const user = await GoogleSignin.signInSilently();
-      console.log("🚀 ~ checkGoogleStatus ~ user:", user);
       if (user.idToken) {
         const tokens = await GoogleSignin.getTokens();
         await AsyncStorage.setItem("userEmail", user?.user?.email);
         await AsyncStorage.setItem("googleToken", tokens.accessToken);
-        setSignedIn(true);
       }
     };
 

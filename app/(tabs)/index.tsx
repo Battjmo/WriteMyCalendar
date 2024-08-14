@@ -79,7 +79,8 @@ export default function HomeScreen() {
           body: eventToInsert,
         }
       );
-      console.log("inserted event: ", await insertedEvent.json());
+      const result = await insertedEvent.json();
+      return result;
     }
   };
 
@@ -119,8 +120,8 @@ export default function HomeScreen() {
         body: formData,
       }
     );
-    console.log("inserted document: ", await response.json());
-    return response;
+    const result = await response.json();
+    return result;
   };
 
   let camera: CameraView | null = null;
