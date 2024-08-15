@@ -12,10 +12,7 @@ import { useState } from "react";
 import { useModeContext } from "@/components/context/modeContext";
 
 export default function TabTwoScreen() {
-  // const [mode, setMode] = useState("calendar");
-  // AsyncStorage.getItem("mode").then((value) => {
-  //   if (value) setMode(value);
-  // });
+  // @ts-ignore
   const { state, dispatch } = useModeContext();
   const setMode = (mode: string) => {
     dispatch({ type: "CHANGE_MODE", payload: mode });

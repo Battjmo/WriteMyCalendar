@@ -34,26 +34,12 @@ export default function () {
       color={GoogleSigninButton.Color.Dark}
       onPress={async () => {
         try {
-          // const user = await GoogleSignin.signInSilently();
-          // if (user.idToken) {
-          //   const tokens = await GoogleSignin.getTokens();
-          //   console.log("🚀 ~ onPress={ ~ tokens:", tokens);
-          //   await AsyncStorage.setItem("userEmail", user?.user?.email);
-          //   await AsyncStorage.setItem("googleToken", tokens.accessToken);
-          // } else {
           await GoogleSignin.hasPlayServices();
           const singin = await GoogleSignin.signIn();
           console.log("🚀 ~ onPress={ ~ singin:", singin);
           const tokens = await GoogleSignin.getTokens();
           console.log("🚀 ~ onPress={ ~ tokens:", tokens);
           await AsyncStorage.setItem("googleToken", tokens.accessToken);
-          // }
-          // console.log("🚀 ~ user:", user);
-
-          // const user = await GoogleSignin.addScopes({
-          //   scopes: ["https://www.googleapis.com/auth/calendar.events"],
-          // });
-          // console.log("🚀 ~ user:", user)
         } catch (error: any) {
           if (error.code === statusCodes.SIGN_IN_CANCELLED) {
             // user cancelled the login flow
