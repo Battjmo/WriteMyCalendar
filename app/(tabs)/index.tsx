@@ -84,7 +84,12 @@ export default function HomeScreen() {
     }
   };
 
-  const addTextToGoogleDocs = async (parsedEvent: any) => {
+  const addTextToGoogleDocs = async (
+    title = "test title",
+    body = "I am a note"
+  ) => {
+    console.log("🚀 ~ HomeScreen ~ body:", body);
+    console.log("🚀 ~ HomeScreen ~ title:", title);
     const token = await AsyncStorage.getItem("googleToken");
     const email = await AsyncStorage.getItem("userEmail");
     if (!token || !email) {
@@ -92,36 +97,52 @@ export default function HomeScreen() {
       return;
     }
 
-    const doc = parsedEvent.body || parsedEvent;
+    try {
+      // Step 1: Upload the file with no title
+      const fileUploadResponse = await fetch(
+        "https://www.googleapis.com/upload/drive/v3/files?uploadType=media",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "text/plain",
+          },
+          body: body,
+        }
+      );
 
-    const title = doc.name || doc.title || "Untitled";
-    console.log("🚀 ~ addTextToGoogleDocs ~ title:", title);
-    const body = doc.content || "No content";
-    console.log("🚀 ~ addTextToGoogleDocs ~ body:", body);
+      const fileData = await fileUploadResponse.json();
+      const fileId = fileData.id;
 
-    const metadata = {
-      name: `${title}.txt`,
-      mimeType: "text/plain",
-    };
-
-    const fileData = new Blob([body], { type: "text/plain" });
-
-    const formData = new FormData();
-    formData.append(
-      "metadata",
-      new Blob([JSON.stringify(metadata)], { type: "application/json" })
-    );
-    formData.append("file", fileData);
-    const response = await fetch(
-      "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
-      {
-        method: "POST",
-        headers: new Headers({ Authorization: `Bearer ${token}` }),
-        body: formData,
+      if (!fileId) {
+        throw new Error("File ID not returned");
       }
-    );
-    const result = await response.json();
-    return result;
+
+      console.log("File uploaded successfully with ID:", fileId);
+
+      // Step 2: Update the file's metadata (e.g., set the title)
+      const metadata = {
+        name: title,
+      };
+
+      const metadataUpdateResponse = await fetch(
+        `https://www.googleapis.com/drive/v3/files/${fileId}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(metadata),
+        }
+      );
+
+      const metadataResult = await metadataUpdateResponse.json();
+      console.log("File metadata updated:", metadataResult);
+      return metadataResult;
+    } catch (error) {
+      console.error("Error creating or updating file:", error);
+    }
   };
 
   let camera: CameraView | null = null;
@@ -169,7 +190,10 @@ export default function HomeScreen() {
           console.log("🚀 ~ takeTheDamnPicture ~ result:", result);
           break;
         case "text":
-          result = await addTextToGoogleDocs(parsedEvent);
+          const title = parsedEvent.name || parsedEvent.title || "Untitled";
+          const body = parsedEvent.body || "No content";
+          console.log("🚀 ~ takeTheDamnPicture ~ dy:", body);
+          result = await addTextToGoogleDocs(title, body);
           console.log("🚀 ~ takeTheDamnPicture ~ result:", result);
           break;
         default:

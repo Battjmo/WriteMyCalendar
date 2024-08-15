@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "deploymentTarget": "17.5.1",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
@@ -43,9 +42,7 @@
           "recordAudioAndroid": true
         }
       ],
-      [
-        "@react-native-google-signin/google-signin"
-      ]
+      ["@react-native-google-signin/google-signin"]
     ],
     "experiments": {
       "typedRoutes": true
