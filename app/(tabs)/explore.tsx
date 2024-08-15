@@ -1,13 +1,23 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { StyleSheet, Image, Platform } from "react-native";
+import { Button } from "react-native";
 
 import { Collapsible } from "@/components/Collapsible";
 import { ExternalLink } from "@/components/ExternalLink";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState } from "react";
+import { useModeContext } from "@/components/context/modeContext";
 
 export default function TabTwoScreen() {
+  // @ts-ignore
+  const { state, dispatch } = useModeContext();
+  const setMode = (mode: string) => {
+    dispatch({ type: "CHANGE_MODE", payload: mode });
+  };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
@@ -17,10 +27,22 @@ export default function TabTwoScreen() {
     >
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Explore</ThemedText>
+        <ThemedText type="title">{state.mode}</ThemedText>
       </ThemedView>
-      <ThemedText>
-        This app includes example code to help you get started.
-      </ThemedText>
+      <Button
+        title="Calendar"
+        onPress={() => {
+          AsyncStorage.setItem("mode", "calendar");
+          setMode("calendar");
+        }}
+      />
+      <Button
+        title="Text"
+        onPress={() => {
+          AsyncStorage.setItem("mode", "text");
+          setMode("text");
+        }}
+      />
       <Collapsible title="File-based routing">
         <ThemedText>
           This app has two screens:{" "}

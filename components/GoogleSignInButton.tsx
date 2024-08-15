@@ -4,11 +4,29 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 
 export default function () {
-  GoogleSignin.configure({
-    webClientId: process.env.GOOGLE_IOS_CLIENT_ID,
-  });
+  useEffect(() => {
+    const checkGoogleStatus = async () => {
+      GoogleSignin.configure({
+        scopes: [
+          "https://www.googleapis.com/auth/calendar.events",
+          "https://www.googleapis.com/auth/drive",
+        ],
+      });
+      const user = await GoogleSignin.signInSilently();
+      if (user.idToken) {
+        const tokens = await GoogleSignin.getTokens();
+        await AsyncStorage.setItem("userEmail", user?.user?.email);
+        await AsyncStorage.setItem("googleToken", tokens.accessToken);
+      }
+    };
+
+    checkGoogleStatus();
+
+    return () => {};
+  }, []);
 
   return (
     <GoogleSigninButton
@@ -17,13 +35,10 @@ export default function () {
       onPress={async () => {
         try {
           await GoogleSignin.hasPlayServices();
-          const user = await GoogleSignin.addScopes({
-            scopes: ["https://www.googleapis.com/auth/calendar.events"],
-          });
           const singin = await GoogleSignin.signIn();
+          console.log("🚀 ~ onPress={ ~ singin:", singin);
           const tokens = await GoogleSignin.getTokens();
           console.log("🚀 ~ onPress={ ~ tokens:", tokens);
-          await AsyncStorage.setItem("userEmail", singin?.user?.email);
           await AsyncStorage.setItem("googleToken", tokens.accessToken);
         } catch (error: any) {
           if (error.code === statusCodes.SIGN_IN_CANCELLED) {

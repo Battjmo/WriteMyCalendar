@@ -7,11 +7,14 @@ import {
 } from "expo-camera";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useModeContext } from "@/components/context/modeContext";
 
 export default function HomeScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [googleToken, setGoogleToken] = useState("");
+  //@ts-ignore
+  const { state } = useModeContext();
 
   useEffect(() => {
     let ignore = false;
@@ -46,7 +49,7 @@ export default function HomeScreen() {
             type: "application/json; charset=UTF-8",
             Authorization: `Bearer ${supabaseToken}`,
           },
-          body: JSON.stringify({ photo: photo.base64 }),
+          body: JSON.stringify({ photo: photo.base64, mode: state.mode }),
         }
       );
       console.log("eventData: ", eventData);
@@ -76,7 +79,69 @@ export default function HomeScreen() {
           body: eventToInsert,
         }
       );
-      console.log("inserted event: ", await insertedEvent.json());
+      const result = await insertedEvent.json();
+      return result;
+    }
+  };
+
+  const addTextToGoogleDocs = async (
+    title = "test title",
+    body = "I am a note"
+  ) => {
+    console.log("🚀 ~ HomeScreen ~ body:", body);
+    console.log("🚀 ~ HomeScreen ~ title:", title);
+    const token = await AsyncStorage.getItem("googleToken");
+    const email = await AsyncStorage.getItem("userEmail");
+    if (!token || !email) {
+      console.log("token or email not found");
+      return;
+    }
+
+    try {
+      // Step 1: Upload the file with no title
+      const fileUploadResponse = await fetch(
+        "https://www.googleapis.com/upload/drive/v3/files?uploadType=media",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "text/plain",
+          },
+          body: body,
+        }
+      );
+
+      const fileData = await fileUploadResponse.json();
+      const fileId = fileData.id;
+
+      if (!fileId) {
+        throw new Error("File ID not returned");
+      }
+
+      console.log("File uploaded successfully with ID:", fileId);
+
+      // Step 2: Update the file's metadata (e.g., set the title)
+      const metadata = {
+        name: title,
+      };
+
+      const metadataUpdateResponse = await fetch(
+        `https://www.googleapis.com/drive/v3/files/${fileId}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(metadata),
+        }
+      );
+
+      const metadataResult = await metadataUpdateResponse.json();
+      console.log("File metadata updated:", metadataResult);
+      return metadataResult;
+    } catch (error) {
+      console.error("Error creating or updating file:", error);
     }
   };
 
@@ -115,8 +180,25 @@ export default function HomeScreen() {
       parsedEvent = await processImage(photo);
     }
 
+    console.log("parsedEvent: ", parsedEvent);
+    let result;
+
     if (parsedEvent) {
-      await addEventsToCalendar(parsedEvent);
+      switch (state.mode) {
+        case "calendar":
+          result = await addEventsToCalendar(parsedEvent);
+          console.log("🚀 ~ takeTheDamnPicture ~ result:", result);
+          break;
+        case "text":
+          const title = parsedEvent.name || parsedEvent.title || "Untitled";
+          const body = parsedEvent.body || "No content";
+          console.log("🚀 ~ takeTheDamnPicture ~ dy:", body);
+          result = await addTextToGoogleDocs(title, body);
+          console.log("🚀 ~ takeTheDamnPicture ~ result:", result);
+          break;
+        default:
+          break;
+      }
     }
   }
 
@@ -131,6 +213,7 @@ export default function HomeScreen() {
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={takeTheDamnPicture}>
             <Text style={styles.text}>Take Photo</Text>
+            <Text style={styles.text}>{state.mode}</Text>
           </TouchableOpacity>
         </View>
       </CameraView>
