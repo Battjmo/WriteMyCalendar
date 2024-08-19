@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View, Button } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, Button, ActivityIndicator } from "react-native";
 import { useEffect, useState } from "react";
 import {
   CameraCapturedPicture,
@@ -6,6 +6,7 @@ import {
   useCameraPermissions,
 } from "expo-camera";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
+import LoadingScreen from "@/components/LoadingScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useModeContext } from "@/components/context/modeContext";
 
@@ -13,6 +14,7 @@ export default function HomeScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [googleToken, setGoogleToken] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
   //@ts-ignore
   const { state } = useModeContext();
 
@@ -170,36 +172,43 @@ export default function HomeScreen() {
   }
 
   async function takeTheDamnPicture() {
-    if (!isCameraReady) {
-      console.log("Camera is not ready yet");
-      return;
-    }
-    let parsedEvent;
-    const photo = await camera?.takePictureAsync({ base64: true });
-
-    if (photo && photo.base64) {
-      parsedEvent = await processImage(photo);
-    }
-
-    console.log("parsedEvent: ", parsedEvent);
-    let result;
-
-    if (parsedEvent) {
-      switch (state.mode) {
-        case "calendar":
-          result = await addEventsToCalendar(parsedEvent);
-          console.log("🚀 ~ takeTheDamnPicture ~ result:", result);
-          break;
-        case "text":
-          const title = parsedEvent.name || parsedEvent.title || "Untitled";
-          const body = parsedEvent.body || "No content";
-          console.log("🚀 ~ takeTheDamnPicture ~ dy:", body);
-          result = await addTextToGoogleDocs(title, body);
-          console.log("🚀 ~ takeTheDamnPicture ~ result:", result);
-          break;
-        default:
-          break;
+    try {
+      if (!isCameraReady) {
+        console.log("Camera is not ready yet");
+        return;
       }
+      setIsProcessing(true);
+      let parsedEvent;
+      const photo = await camera?.takePictureAsync({ base64: true });
+
+      if (photo && photo.base64) {
+        parsedEvent = await processImage(photo);
+      }
+
+      console.log("parsedEvent: ", parsedEvent);
+      let result;
+
+      if (parsedEvent) {
+        switch (state.mode) {
+          case "calendar":
+            result = await addEventsToCalendar(parsedEvent);
+            console.log("🚀 ~ takeTheDamnPicture ~ result:", result);
+            break;
+          case "text":
+            const title = parsedEvent.name || parsedEvent.title || "Untitled";
+            const body = parsedEvent.body || "No content";
+            console.log("🚀 ~ takeTheDamnPicture ~ dy:", body);
+            result = await addTextToGoogleDocs(title, body);
+            console.log("🚀 ~ takeTheDamnPicture ~ result:", result);
+            break;
+          default:
+            break;
+        }
+      }
+    } catch (error) {
+      console.error("Error processing photo:", error);
+    } finally {
+      setIsProcessing(false);
     }
   }
 
@@ -218,6 +227,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
       </CameraView>
+      {isProcessing && <LoadingScreen />}
       <GoogleSignInButton />
     </View>
   );
@@ -227,6 +237,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
+    position: 'relative',
   },
   camera: {
     flex: 1,
