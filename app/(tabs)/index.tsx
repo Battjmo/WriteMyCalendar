@@ -80,8 +80,9 @@ export default function HomeScreen() {
         }
       );
       const result = await insertedEvent.json();
-      return result;
+      console.log("🚀 ~ addEventsToCalendar ~ result:", result);
     }
+    return "all done";
   };
 
   const addTextToGoogleDocs = async (
