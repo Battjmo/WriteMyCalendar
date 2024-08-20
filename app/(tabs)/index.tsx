@@ -6,6 +6,7 @@ import {
   useCameraPermissions,
 } from "expo-camera";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
+import AppleSignInButton from "@/components/AppleSignInButton";
 import LoadingScreen from "@/components/LoadingScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useModeContext } from "@/components/context/modeContext";
@@ -229,6 +230,7 @@ export default function HomeScreen() {
       </CameraView>
       {isProcessing && <LoadingScreen />}
       <GoogleSignInButton />
+      <AppleSignInButton />
     </View>
   );
 }
