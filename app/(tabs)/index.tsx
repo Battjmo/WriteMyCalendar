@@ -192,7 +192,7 @@ export default function HomeScreen() {
       if (parsedEvent) {
         switch (state.mode) {
           case "calendar":
-            // result = await addEventsToCalendar(parsedEvent);
+            result = await addEventsToCalendar(parsedEvent);
             break;
           case "text":
             const title = parsedEvent.name || parsedEvent.title || "Untitled";

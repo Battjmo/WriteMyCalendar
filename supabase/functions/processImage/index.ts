@@ -38,15 +38,17 @@ Deno.serve(async (req) => {
       filename: key,
       overwrite: true,
     });
-    const data = await blobResult.json();
-    console.log("Blob Data:", data);
+    console.log("Blob Data:", blobResult);
 
     // Use it in the ocr api
     const OCRResult = await jigsawstack.vision.vocr({
       prompt: prompt,
       file_store_key: key,
     });
-    return new Response(JSON.stringify(OCRResult), {
+
+    const JSONresponse =
+      (await JSON.parse(OCRResult.context.slice(8, -3))) || "";
+    return new Response(JSON.stringify(JSONresponse), {
       status: 200,
       statusText: "success",
       headers: {
