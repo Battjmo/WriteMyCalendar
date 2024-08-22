@@ -26,7 +26,6 @@ const base64ToBlob = async (base64: string, contentType = "image/png") => {
 };
 
 Deno.serve(async (req) => {
-  const start = performance.now();
   const jigsawstack = JigsawStack({
     apiKey: Deno.env.get("JIGSAWSTACK_API_KEY") || "",
   });
@@ -40,6 +39,7 @@ Deno.serve(async (req) => {
       overwrite: true,
     });
     console.log("Blob Data:", blobResult);
+    const start = performance.now();
 
     // Use it in the ocr api
     const OCRResult = await jigsawstack.vision.vocr({
