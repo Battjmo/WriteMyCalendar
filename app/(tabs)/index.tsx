@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View, Button, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, Button } from "react-native";
 import { useEffect, useState } from "react";
 import {
   CameraCapturedPicture,
@@ -9,6 +9,7 @@ import GoogleSignInButton from "@/components/GoogleSignInButton";
 import LoadingScreen from "@/components/LoadingScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useModeContext } from "@/components/context/modeContext";
+import { JigsawStack } from "jigsawstack";
 
 export default function HomeScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -40,6 +41,7 @@ export default function HomeScreen() {
   // send the image to Supabase and thence OpenAI
   const processImage = async (photo: CameraCapturedPicture) => {
     const supabaseToken = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+    const photoURL = photo.base64;
 
     // call edge function with fetch since it doesn't work from an iphone over LAN
     try {
@@ -51,13 +53,13 @@ export default function HomeScreen() {
             type: "application/json; charset=UTF-8",
             Authorization: `Bearer ${supabaseToken}`,
           },
-          body: JSON.stringify({ photo: photo.base64, mode: state.mode }),
+          body: JSON.stringify({ photo: photoURL, mode: state.mode }),
         }
       );
-      console.log("eventData: ", eventData);
       return await eventData.json();
     } catch (error) {
       console.log("inserted event error: ", error);
+      return error;
     }
   };
 
@@ -191,15 +193,12 @@ export default function HomeScreen() {
       if (parsedEvent) {
         switch (state.mode) {
           case "calendar":
-            result = await addEventsToCalendar(parsedEvent);
-            console.log("🚀 ~ takeTheDamnPicture ~ result:", result);
+            // result = await addEventsToCalendar(parsedEvent);
             break;
           case "text":
             const title = parsedEvent.name || parsedEvent.title || "Untitled";
             const body = parsedEvent.body || "No content";
-            console.log("🚀 ~ takeTheDamnPicture ~ dy:", body);
             result = await addTextToGoogleDocs(title, body);
-            console.log("🚀 ~ takeTheDamnPicture ~ result:", result);
             break;
           default:
             break;
@@ -237,7 +236,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    position: 'relative',
+    position: "relative",
   },
   camera: {
     flex: 1,
