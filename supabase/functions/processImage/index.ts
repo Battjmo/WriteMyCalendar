@@ -14,11 +14,6 @@ const prompts: { [key: string]: string } = {
 };
 
 Deno.serve(async (req) => {
-  // const {body } = await req.json();
-  // const photo = body?.photo as string
-
-  // console.log("🚀 ~ Deno.serve ~ prompt:", prompt)
-
   const { photo, mode } = await req.json();
   const prompt = prompts[mode as string] || prompts["calendar"];
   console.log("🚀 ~ Deno.serve ~ mode:", mode);
