@@ -9,7 +9,6 @@ import GoogleSignInButton from "@/components/GoogleSignInButton";
 import LoadingScreen from "@/components/LoadingScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useModeContext } from "@/components/context/modeContext";
-import { JigsawStack } from "jigsawstack";
 
 export default function HomeScreen() {
   const [permission, requestPermission] = useCameraPermissions();

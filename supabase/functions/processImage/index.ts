@@ -27,78 +27,40 @@ const base64ToBlob = async (base64: string, contentType = "image/png") => {
 
 Deno.serve(async (req) => {
   const jigsawstack = JigsawStack({
-    apiKey:
-      "sk_a758d7ec3235e2401f2a0b3a62f362bfb7cf9a2e1d74353cb372b8f2517769f38e185d100058272918dff862438e4ff62b86af322917332d0f8ec554907e21c4024Z9apPy6X9VzGfu87cc",
+    apiKey: Deno.env.get("JIGSAWSTACK_API_KEY") || "",
   });
   const { photo, mode } = await req.json();
-  console.log("🚀 ~ Deno.serve ~ photo:", photo);
   const prompt = prompts[mode as string] || prompts["calendar"];
+  try {
+    const blob = await base64ToBlob(photo);
+    const key = Date.now().toString() + ".png";
+    const blobResult = await jigsawstack.store.upload(blob, {
+      filename: key,
+      overwrite: true,
+    });
+    const data = await blobResult.json();
+    console.log("Blob Data:", data);
 
-  const blob = await base64ToBlob(photo);
-  const key = "test.png";
-  const endpoint = `https://api.jigsawstack.com/v1/store/file?key=${key}&overwrite=true`;
-  const options = {
-    method: "POST",
-    headers: {
-      "x-api-key":
-        "sk_a758d7ec3235e2401f2a0b3a62f362bfb7cf9a2e1d74353cb372b8f2517769f38e185d100058272918dff862438e4ff62b86af322917332d0f8ec554907e21c4024Z9apPy6X9VzGfu87cc",
-    },
-    body: blob,
-  };
-  const result = await fetch(endpoint, options);
-  const data = await result.json();
-  console.log("🚀 ~ takeTheDamnPicture ~ data:", data);
-  //use it in the ocr api
-
-  const OCRResult = await jigsawstack.vision.vocr({
-    prompt: prompt,
-    file_store_key: key,
-  });
-  // const binaryData = atob(photo);
-  // const blob = new Blob([binaryData], { type: "image/png" });
-  // const key = "test.png";
-
-  // const blobResult = await jigsawstack.store.upload(blob, {
-  //   filename: key,
-  //   overwrite: true,
-  // });
-  // console.log("🚀 ~ Deno.serve ~ blobResult:", blobResult);
-  // //use it in the ocr api
-
-  // console.log("🚀 ~ Deno.serve ~ mode:", mode);
-  // try {
-  //   const eventData = await jigsawstack.vision.vocr({
-  //     prompt,
-  //     file_store_key: key,
-  //   });
-  //   console.log("🚀 ~ Deno.serve ~ eventData:", eventData);
-  return new Response(JSON.stringify(OCRResult), {
-    status: 200,
-    statusText: "success",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  // } catch (error) {
-  //   console.log("error: ", error);
-  //   return new Response(JSON.stringify(error), {
-  //     status: 500,
-  //     statusText: "error",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //   });
-  // }
-  // const OCRResult = await jigsawstack.vision.vocr({
-  //   prompt,
-  //   url: photo,
-  // });
-  // console.log("🚀 ~ Deno.serve ~ OCRResult:", OCRResult);
-  // return new Response(JSON.stringify(OCRResult), {
-  //   status: 200,
-  //   statusText: "success",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
-  // });
+    // Use it in the ocr api
+    const OCRResult = await jigsawstack.vision.vocr({
+      prompt: prompt,
+      file_store_key: key,
+    });
+    return new Response(JSON.stringify(OCRResult), {
+      status: 200,
+      statusText: "success",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (error: any) {
+    console.log("Error in processing image: ", error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      statusText: "error",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
 });
