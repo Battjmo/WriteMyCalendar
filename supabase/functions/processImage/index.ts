@@ -16,7 +16,6 @@ const prompts: { [key: string]: string } = {
 Deno.serve(async (req) => {
   const { photo, mode } = await req.json();
   const prompt = prompts[mode as string] || prompts["calendar"];
-  console.log("🚀 ~ Deno.serve ~ mode:", mode);
   const openai = new OpenAI({
     apiKey: Deno.env.get("OPENAI_API_KEY"),
   });
