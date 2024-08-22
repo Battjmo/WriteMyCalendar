@@ -26,6 +26,7 @@ const base64ToBlob = async (base64: string, contentType = "image/png") => {
 };
 
 Deno.serve(async (req) => {
+  const start = performance.now();
   const jigsawstack = JigsawStack({
     apiKey: Deno.env.get("JIGSAWSTACK_API_KEY") || "",
   });
@@ -45,6 +46,9 @@ Deno.serve(async (req) => {
       prompt: prompt,
       file_store_key: key,
     });
+    const end = performance.now();
+    const executionTime = end - start;
+    console.log(`Execution time: ${executionTime} ms`);
 
     const JSONresponse =
       (await JSON.parse(OCRResult.context.slice(8, -3))) || "";
