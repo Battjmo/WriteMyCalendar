@@ -17,6 +17,9 @@ export default function AppleSignInButton() {
         // Store the user identifier
         await AsyncStorage.setItem("appleUserId", credential.user);
 
+        // Store the authentication method
+        await AsyncStorage.setItem("authMethod", "apple");
+
         // If we have the user's email, store it
         if (credential.email) {
           await AsyncStorage.setItem("userEmail", credential.email);

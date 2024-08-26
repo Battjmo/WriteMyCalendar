@@ -20,6 +20,7 @@ export default function () {
         const tokens = await GoogleSignin.getTokens();
         await AsyncStorage.setItem("userEmail", user?.user?.email);
         await AsyncStorage.setItem("googleToken", tokens.accessToken);
+        await AsyncStorage.setItem("authMethod", "google");
       }
     };
 
@@ -40,6 +41,7 @@ export default function () {
           const tokens = await GoogleSignin.getTokens();
           console.log("🚀 ~ onPress={ ~ tokens:", tokens);
           await AsyncStorage.setItem("googleToken", tokens.accessToken);
+          await AsyncStorage.setItem("authMethod", "google");
         } catch (error: any) {
           if (error.code === statusCodes.SIGN_IN_CANCELLED) {
             // user cancelled the login flow
