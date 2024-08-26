@@ -6,7 +6,12 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "channel": "development"
+      "channel": "development",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJseXl0Y3pqYWh1cXNtbGZrZHBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTc0NTk1NDgsImV4cCI6MjAzMzAzNTU0OH0.N-wsVbyap6MZpiEs7ur4-7SqwKEh4Q4SM9ECiDfWdk8",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "270439132368-f7pvhr8e4hi7e5i9ef8oh2ji6rrofic5.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "270439132368-g16ppoktu4bblqo5tjn9kqv1nm1f2mpa.apps.googleusercontent.com"
+      }
     },
     "preview": {
       "distribution": "internal",

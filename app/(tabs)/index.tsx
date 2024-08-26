@@ -1,11 +1,13 @@
-import { StyleSheet, Text, TouchableOpacity, View, Button, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, Button } from "react-native";
 import { useEffect, useState } from "react";
 import {
   CameraCapturedPicture,
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
+import { getAuthMethod } from "@/utils/authUtils";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
+import AppleSignInButton from "@/components/AppleSignInButton";
 import LoadingScreen from "@/components/LoadingScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useModeContext } from "@/components/context/modeContext";
@@ -40,6 +42,7 @@ export default function HomeScreen() {
   // send the image to Supabase and thence OpenAI
   const processImage = async (photo: CameraCapturedPicture) => {
     const supabaseToken = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+    const authMethod = await getAuthMethod();
 
     // call edge function with fetch since it doesn't work from an iphone over LAN
     try {
@@ -51,49 +54,65 @@ export default function HomeScreen() {
             type: "application/json; charset=UTF-8",
             Authorization: `Bearer ${supabaseToken}`,
           },
-          body: JSON.stringify({ photo: photo.base64, mode: state.mode }),
+          body: JSON.stringify({
+            photo: photo.base64,
+            mode: state.mode,
+            authMethod,
+          }),
         }
       );
       console.log("eventData: ", eventData);
       return await eventData.json();
     } catch (error) {
+      // we're going to add a comment here about what is happening
       console.log("inserted event error: ", error);
     }
   };
-
   const addEventsToCalendar = async (parsedEvent: any) => {
-    const token = await AsyncStorage.getItem("googleToken");
+    const authMethod = await getAuthMethod();
+    const token = await AsyncStorage.getItem(
+      authMethod === "google" ? "googleToken" : "appleToken"
+    );
     const email = await AsyncStorage.getItem("userEmail");
     if (!token || !email) {
       console.log("token or email not found");
       return;
     }
-    for (const event of parsedEvent) {
-      const eventToInsert = JSON.stringify(event);
-      const insertedEvent = await fetch(
-        `https://www.googleapis.com/calendar/v3/calendars/${email}/events`,
-        {
-          method: "POST",
-          headers: {
-            type: "application/json; charset=UTF-8",
-            Authorization: `Bearer ${token}`,
-          },
-          body: eventToInsert,
-        }
-      );
-      const result = await insertedEvent.json();
-      console.log("🚀 ~ addEventsToCalendar ~ result:", result);
+
+    if (authMethod === "google") {
+      for (const event of parsedEvent) {
+        const eventToInsert = JSON.stringify(event);
+        const insertedEvent = await fetch(
+          `https://www.googleapis.com/calendar/v3/calendars/${email}/events`,
+          {
+            method: "POST",
+            headers: {
+              type: "application/json; charset=UTF-8",
+              Authorization: `Bearer ${token}`,
+            },
+            body: eventToInsert,
+          }
+        );
+        const result = await insertedEvent.json();
+        console.log("🚀 ~ addEventsToCalendar ~ result:", result);
+      }
+    } else if (authMethod === "apple") {
+      // Implement Apple Calendar API call here
+      console.log("Apple Calendar API not implemented yet");
     }
     return "all done";
   };
 
-  const addTextToGoogleDocs = async (
+  const addTextToDocument = async (
     title = "test title",
     body = "I am a note"
   ) => {
     console.log("🚀 ~ HomeScreen ~ body:", body);
     console.log("🚀 ~ HomeScreen ~ title:", title);
-    const token = await AsyncStorage.getItem("googleToken");
+    const authMethod = await getAuthMethod();
+    const token = await AsyncStorage.getItem(
+      authMethod === "google" ? "googleToken" : "appleToken"
+    );
     const email = await AsyncStorage.getItem("userEmail");
     if (!token || !email) {
       console.log("token or email not found");
@@ -101,7 +120,24 @@ export default function HomeScreen() {
     }
 
     try {
-      // Step 1: Upload the file with no title
+      if (authMethod === "google") {
+        return await addTextToGoogleDocs(token, title, body);
+      } else if (authMethod === "apple") {
+        // Implement Apple Notes API call here
+        console.log("Apple Notes API not implemented yet");
+        return { success: false, message: "Apple Notes API not implemented" };
+      }
+    } catch (error) {
+      console.error("Error creating or updating file:", error);
+    }
+  };
+
+  const addTextToGoogleDocs = async (
+    token: string,
+    title: string,
+    body: string
+  ) => {
+    try {
       const fileUploadResponse = await fetch(
         "https://www.googleapis.com/upload/drive/v3/files?uploadType=media",
         {
@@ -196,9 +232,10 @@ export default function HomeScreen() {
             break;
           case "text":
             const title = parsedEvent.name || parsedEvent.title || "Untitled";
-            const body = parsedEvent.body || "No content";
+            const body =
+              parsedEvent.body || parsedEvent.content || "No content";
             console.log("🚀 ~ takeTheDamnPicture ~ dy:", body);
-            result = await addTextToGoogleDocs(title, body);
+            result = await addTextToDocument(title, body);
             console.log("🚀 ~ takeTheDamnPicture ~ result:", result);
             break;
           default:
@@ -229,6 +266,7 @@ export default function HomeScreen() {
       </CameraView>
       {isProcessing && <LoadingScreen />}
       <GoogleSignInButton />
+      <AppleSignInButton />
     </View>
   );
 }
@@ -237,7 +275,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    position: 'relative',
+    position: "relative",
   },
   camera: {
     flex: 1,
