@@ -19,6 +19,11 @@ export default function AppleSignInButton() {
 
         // Store the authentication method
         await AsyncStorage.setItem("authMethod", "apple");
+        if (credential.identityToken) {
+          await AsyncStorage.setItem("appleToken", credential.identityToken);
+        } else {
+          throw new Error("Apple sign-in failed: no identity token");
+        }
 
         // If we have the user's email, store it
         if (credential.email) {
