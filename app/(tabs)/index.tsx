@@ -11,6 +11,7 @@ import AppleSignInButton from "@/components/AppleSignInButton";
 import LoadingScreen from "@/components/LoadingScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useModeContext } from "@/components/context/modeContext";
+import * as Calendar from "expo-calendar";
 
 export default function HomeScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -28,6 +29,12 @@ export default function HomeScreen() {
         const token = await AsyncStorage.getItem("googleToken");
         if (token !== null && !ignore && googleToken !== token) {
           setGoogleToken(token);
+          const { status } = await Calendar.requestCalendarPermissionsAsync();
+          const calendars = await Calendar.getCalendarsAsync(
+            Calendar.EntityTypes.EVENT
+          );
+          console.log("🚀 ~ fetchToken ~ calendars:", calendars);
+          console.log("🚀 ~ fetchToken ~ status:", status);
         }
       } catch (e) {
         console.log("couldn't fetch token: ", e);
@@ -43,6 +50,7 @@ export default function HomeScreen() {
   const processImage = async (photo: CameraCapturedPicture) => {
     const supabaseToken = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
     const authMethod = await getAuthMethod();
+    console.log("🚀 ~ processImage ~ authMethod:", authMethod);
 
     // call edge function with fetch since it doesn't work from an iphone over LAN
     try {
@@ -69,14 +77,16 @@ export default function HomeScreen() {
     }
   };
   const addEventsToCalendar = async (parsedEvent: any) => {
+    let result;
     const authMethod = await getAuthMethod();
     const token = await AsyncStorage.getItem(
       authMethod === "google" ? "googleToken" : "appleToken"
     );
     const email = await AsyncStorage.getItem("userEmail");
+
     if (!token || !email) {
-      console.log("token or email not found");
-      return;
+      console.error("Token or email not found");
+      return { success: false, message: "Authentication information missing" };
     }
 
     if (authMethod === "google") {
@@ -270,7 +280,6 @@ export default function HomeScreen() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
