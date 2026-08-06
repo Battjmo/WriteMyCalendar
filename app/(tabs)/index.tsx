@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View, Button } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   CameraCapturedPicture,
   CameraView,
@@ -184,7 +184,7 @@ export default function HomeScreen() {
     }
   };
 
-  let camera: CameraView | null = null;
+  const camera = useRef<CameraView>(null);
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -215,7 +215,7 @@ export default function HomeScreen() {
       }
       setIsProcessing(true);
       let parsedEvent;
-      const photo = await camera?.takePictureAsync({ base64: true });
+      const photo = await camera.current?.takePictureAsync({ base64: true });
 
       if (photo && photo.base64) {
         parsedEvent = await processImage(photo);
@@ -254,7 +254,7 @@ export default function HomeScreen() {
       <CameraView
         style={styles.camera}
         onCameraReady={setCameraReady}
-        ref={(ref) => (camera = ref)}
+        ref={camera}
         facing={"back"}
       >
         <View style={styles.buttonContainer}>
