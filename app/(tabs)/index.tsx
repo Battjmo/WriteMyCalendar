@@ -256,14 +256,13 @@ export default function HomeScreen() {
         onCameraReady={setCameraReady}
         ref={camera}
         facing={"back"}
-      >
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={takeTheDamnPicture}>
-            <Text style={styles.text}>Take Photo</Text>
-            <Text style={styles.text}>{state.mode}</Text>
-          </TouchableOpacity>
-        </View>
-      </CameraView>
+      />
+      <View style={styles.buttonContainer} pointerEvents="box-none">
+        <TouchableOpacity style={styles.button} onPress={takeTheDamnPicture}>
+          <Text style={styles.text}>Take Photo</Text>
+          <Text style={styles.text}>{state.mode}</Text>
+        </TouchableOpacity>
+      </View>
       {isProcessing && <LoadingScreen />}
       <GoogleSignInButton />
       <AppleSignInButton />
@@ -278,10 +277,10 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   camera: {
-    flex: 1,
+    ...StyleSheet.absoluteFill,
   },
   buttonContainer: {
-    flex: 1,
+    ...StyleSheet.absoluteFill,
     flexDirection: "row",
     backgroundColor: "transparent",
     margin: 64,
