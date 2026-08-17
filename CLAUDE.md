@@ -29,3 +29,7 @@ WriteMyCalendar turns a photo of a handwritten daily schedule notecard into real
 **Env vars**: `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`, `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` are injected per build profile in `eas.json` rather than a local `.env`.
 
 **Path alias**: `@/*` maps to the repo root (`tsconfig.json`), e.g. `@/utils/authUtils`, `@/components/...`.
+
+## Conventions
+
+- When writing new code against a library, use its current, actively-maintained API — don't reach for a deprecated/legacy path just because it's more familiar, has more precedent elsewhere, or was easier to find examples for. If the current API is meaningfully harder to use, missing something the legacy one has, or the migration path is unclear, say so explicitly and ask rather than silently defaulting to the deprecated one.
