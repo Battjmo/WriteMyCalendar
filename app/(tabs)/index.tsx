@@ -1,10 +1,18 @@
-import { StyleSheet, Text, TouchableOpacity, View, Button } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Button,
+  Share,
+} from "react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   CameraCapturedPicture,
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
+import * as Calendar from "expo-calendar";
 import { getAuthMethod } from "@/utils/authUtils";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 import AppleSignInButton from "@/components/AppleSignInButton";
@@ -97,8 +105,41 @@ export default function HomeScreen() {
         console.log("🚀 ~ addEventsToCalendar ~ result:", result);
       }
     } else if (authMethod === "apple") {
-      // Implement Apple Calendar API call here
-      console.log("Apple Calendar API not implemented yet");
+      // There is no Apple Calendar web API - `appleToken` is just a Sign In
+      // with Apple identity JWT, not an OAuth grant for anything. Instead we
+      // write directly to the device's local calendar via EventKit (through
+      // expo-calendar), which is a device permission rather than an OAuth
+      // scope, so it works regardless of sign-in method.
+      const { status } = await Calendar.requestCalendarPermissions();
+      if (status !== "granted") {
+        console.log("Calendar permission not granted");
+        return "calendar permission denied";
+      }
+
+      const calendars = await Calendar.getCalendars(Calendar.EntityTypes.EVENT);
+      let targetCalendar = calendars.find((cal) => cal.allowsModifications);
+      if (!targetCalendar) {
+        try {
+          targetCalendar = Calendar.getDefaultCalendarSync();
+        } catch (error) {
+          console.log("No writable calendar found:", error);
+          return "no writable calendar found";
+        }
+      }
+
+      const events = Array.isArray(parsedEvent) ? parsedEvent : [parsedEvent];
+      for (const event of events) {
+        try {
+          const createdEvent = await targetCalendar.createEvent({
+            title: event.title,
+            startDate: new Date(event.startDate),
+            endDate: new Date(event.endDate),
+          });
+          console.log("🚀 ~ addEventsToCalendar ~ eventId:", createdEvent.id);
+        } catch (error) {
+          console.error("Error creating Apple Calendar event:", error);
+        }
+      }
     }
     return "all done";
   };
@@ -123,9 +164,17 @@ export default function HomeScreen() {
       if (authMethod === "google") {
         return await addTextToGoogleDocs(token, title, body);
       } else if (authMethod === "apple") {
-        // Implement Apple Notes API call here
-        console.log("Apple Notes API not implemented yet");
-        return { success: false, message: "Apple Notes API not implemented" };
+        // There is no public write API to Notes.app, from any token, native
+        // or web - Apple doesn't expose one. The pragmatic real option is to
+        // hand the note off to the native iOS share sheet (no extra native
+        // dependency, works in Expo Go) so the user can tap "Notes" to save
+        // it themselves.
+        const shareResult = await Share.share({
+          title,
+          message: `${title}\n\n${body}`,
+        });
+        console.log("🚀 ~ addTextToDocument ~ shareResult:", shareResult);
+        return { success: shareResult.action !== Share.dismissedAction };
       }
     } catch (error) {
       console.error("Error creating or updating file:", error);
