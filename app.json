@@ -40,6 +40,12 @@
       ["@react-native-google-signin/google-signin"],
       "expo-apple-authentication",
       [
+        "expo-calendar",
+        {
+          "calendarPermission": "Allow $(PRODUCT_NAME) to access your calendar to add events from your schedule."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash.png",
