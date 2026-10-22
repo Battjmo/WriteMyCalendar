@@ -300,14 +300,24 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <CameraView
-        style={styles.camera}
-        onCameraReady={setCameraReady}
-        ref={camera}
-        facing={"back"}
-      />
+      {/* The live preview keeps the main queue permanently busy, which blocks
+          Detox synchronization, so E2E runs render a placeholder instead. */}
+      {process.env.EXPO_PUBLIC_E2E === "true" ? (
+        <View style={styles.camera} testID="camera_placeholder" />
+      ) : (
+        <CameraView
+          style={styles.camera}
+          onCameraReady={setCameraReady}
+          ref={camera}
+          facing={"back"}
+        />
+      )}
       <View style={styles.buttonContainer} pointerEvents="box-none">
-        <TouchableOpacity style={styles.button} onPress={takeTheDamnPicture}>
+        <TouchableOpacity
+          testID="take_photo_button"
+          style={styles.button}
+          onPress={takeTheDamnPicture}
+        >
           <Text style={styles.text}>Take Photo</Text>
           <Text style={styles.text}>{state.mode}</Text>
         </TouchableOpacity>
