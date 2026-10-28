@@ -10,6 +10,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.bacheeze.writemycalendar",
+      "appleTeamId": "W4JUCP2X73",
       "googleServicesFile": "./client_270439132368-f7pvhr8e4hi7e5i9ef8oh2ji6rrofic5.apps.googleusercontent.com.plist"
     },
     "android": {
